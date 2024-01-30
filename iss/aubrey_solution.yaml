@@ -1,0 +1,26 @@
+---
+- name: Query an Open API
+  hosts: localhost
+  connection: local
+
+  vars:
+      pokemon_api: 'https://pokeapi.co/api/v2/pokemon/10'
+
+  tasks:
+  - name: Send an HTTP GET to Pokemon API
+    ansible.builtin.uri:
+      method: GET
+      url: "{{ pokemon_api }}"
+    register: pokemon_data
+
+  - name: print caterpie data results
+    ansible.builtin.debug:
+      var: pokemon_data.get('json')
+
+  - name: print caterpie moves
+    ansible.builtin.debug:
+      var: pokemon_data.get('json').get('moves')[0].get('move')
+
+  - name: print caterpie's first move name
+    ansible.builtin.debug:
+      var: pokemon_data.get('json').get('moves')[0].get('move').name
