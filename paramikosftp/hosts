@@ -1,0 +1,8 @@
+[pa_east_nfv]
+nfv_server01 ansible_host=10.10.2.3 ansible_user=bender
+nfv_server02 ansible_host=10.10.2.4 ansible_user=fry
+nfv_server03 ansible_host=10.10.2.5 ansible_user=zoidberg
+
+[pa_east_nfv:vars]
+ansible_ssh_pass=alta3
+
