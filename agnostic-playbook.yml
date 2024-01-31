@@ -1,0 +1,49 @@
+---
+- name: Using cli_command agnostic modules
+  hosts: arista_switches
+  gather_facts: false
+  connection: network_cli    # required for ansible to use CLI over SSH 
+  become: yes                # run with privilege
+  become_method: enable      # use in place of "sudo"
+
+  vars:
+    ansible_ssh_pass: alta3
+
+  tasks:
+    # this is a network "agnostic" module, in that it should work on every Ansible supported
+    # network_cli device. Unlike arista.eos.eos_cli, this module only accepts STR input
+    # to the argument "command". Therefore we must LOOP to perform the same operation
+    - name: run multiple commands on remote nodes
+      ansible.netcommon.cli_command:
+        command: "{{ item }}"    # item is replaced by the next up in the list
+      loop:
+        - show version
+        - show interfaces
+      register: results     # variable to register with JSON response to eos_command module
+                          # results of both commands are stored in this var "results"
+
+    - name: take a peek as to what is inside of "results"
+      debug:
+        var: results
+
+    - name: take a peek at "just" the JSON returned to the command "show version"
+      debug:
+        var: results.results[0]
+
+    - name: take a peek at "just" the JSON returned to the command "show interfaces"
+      debug:
+        var: results.results[1]
+    
+    # Challenge 01: Write a new playbook. See if you can only display the output produced by
+    # the show interfaces command that displays the switch IP address.
+    - name: display the line of output that contains the switch ip address
+      debug:
+        var: results.results[1].stdout_lines[2]
+
+    - name: Set fact for the switch IP adress
+      set_fact:
+        switch_ip_address: "{{ results.results[1].stdout_lines[2].split()[-1] }}"
+
+    - name: display the switch ip address fact
+      debug:
+        var: switch_ip_address
