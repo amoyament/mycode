@@ -1,0 +1,49 @@
+---
+- name: A few basic filters
+  hosts: localhost
+  gather_facts: no
+
+  vars:
+    aubreys_menu: [ 'cheese', 'tomato', 'bacon', 'salad', 'mashed potatoes']
+    abbeys_menu: ['sushi', 'pot roast', 'icecream', 'milk', 'spaghetti and meatballs']
+
+  tasks:
+  # Create vegetarian menus
+  - name: Aubrey's vegetarian list
+    set_fact:
+      vegetarian_menu_aubrey: "{{ aubreys_menu | reject('match', '^bacon$') | list }}"
+
+  - name: Abbey's vegetarian list
+    set_fact:
+      vegetarian_menu_abbey: "{{ abbeys_menu | reject('match', '^sushi$|^pot roast$|^spaghetti and meatballs$') | list }}"
+
+  # Create vegan menus based on existing vegetarian options
+  - name: Aubrey's vegan list
+    set_fact:
+      vegan_menu_aubrey: "{{ vegetarian_menu_aubrey | reject('match', '^cheese$') | list }}"
+    when: vegetarian_menu_aubrey
+
+  - name: Abbey's vegan list
+    set_fact:
+      vegan_menu_abbey: "{{ vegetarian_menu_abbey | reject('match', '^icecream$|^milk$') | list }}"
+    when: vegetarian_menu_abbey
+    
+  # Debug all menus
+  - name: Debug menus
+    debug:
+      var: vegetarian_menu_aubrey
+        
+    # Debug all menus
+  - name: Debug menus
+    debug:
+      var: vegetarian_menu_abbey
+
+    # Debug all menus
+  - name: Debug menus
+    debug:
+      var: vegan_menu_aubrey
+
+    # Debug all menus
+  - name: Debug menus
+    debug:
+      var: vegan_menu_abbey
